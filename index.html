@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission : Explor'Aires</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap');
+        
+        body { 
+            font-family: 'Nunito', 'Comic Sans MS', sans-serif; 
+            background-color: #eaf0f6; 
+            color: #2b2b2b; margin: 0; padding: 0; user-select: none; 
+            overflow: hidden; 
+            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+        }
+
+        h1, h2, h3 { margin: 0; padding: 0; }
+        .hidden { display: none !important; }
+
+        #main-title {
+            font-size: 28px; font-weight: 900; color: #fff;
+            text-shadow: 0px 3px 0 #3867d6, 0px -1px 0 #3867d6, 2px 2px 0 #3867d6, -2px 2px 0 #3867d6;
+            margin: 8px 0; letter-spacing: 1px;
+        }
+
+        .menu-container {
+            background: rgba(255, 255, 255, 0.95); border-radius: 30px; padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 6px 0 #ced6e0;
+            text-align: center; max-width: 950px; margin-top: 3vh;
+        }
+        .menu-container h2 { font-size: 26px; margin-bottom: 20px; color: #2d98da; }
+        
+        .cards-wrapper { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        
+        .menu-card {
+            background: linear-gradient(145deg, #ffffff, #f1f2f6);
+            border-radius: 20px; padding: 20px;
+            width: 250px; cursor: pointer; transition: all 0.2s; 
+            box-shadow: 0 6px 0 #ced6e0; border: 3px solid transparent;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .menu-card:hover { transform: translateY(-5px); box-shadow: 0 10px 0 #ced6e0, 0 15px 15px rgba(0,0,0,0.1); border-color: #fc5c65; }
+        .menu-card:active { transform: translateY(4px); box-shadow: 0 2px 0 #ced6e0; }
+        .card-icon { font-size: 40px; margin-bottom: 8px; }
+        .menu-card h3 { font-size: 20px; color: #4b6584; margin-bottom: 8px; text-align: center;}
+        .menu-card p { font-size: 14px; color: #778ca3; font-weight: 600; line-height: 1.3; margin: 0; text-align: center;}
+
+        .btn {
+            background-color: #3867d6; color: white; border: none; padding: 10px 16px;
+            font-size: 15px; font-weight: 800; border-radius: 10px; cursor: pointer; margin: 4px;
+            box-shadow: 0 4px 0 #2d98da; transition: 0.1s; display: inline-block; font-family: inherit;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        .btn-success { background-color: #20bf6b; box-shadow: 0 4px 0 #0fb9b1; }
+        .btn-warning { background-color: #f7b731; box-shadow: 0 4px 0 #fa8231; color: #2b2b2b;}
+        .btn-danger { background-color: #eb3b5a; box-shadow: 0 4px 0 #fc5c65; }
+        .btn-back { background-color: #a5b1c2; box-shadow: 0 4px 0 #778ca3; font-size: 13px; margin-bottom: 10px; color: #2b2b2b;}
+
+        #game-screen {
+            display: flex; flex-direction: row; justify-content: center; align-items: stretch;
+            gap: 15px; width: 98vw; max-width: 1200px; height: 86vh; padding: 5px; box-sizing: border-box;
+        }
+
+        .panel {
+            background: white; border-radius: 15px; padding: 12px;
+            box-shadow: 0 6px 0 #ced6e0; display: flex; flex-direction: column; gap: 8px;
+        }
+
+        #left-panel { width: 220px; flex-shrink: 0; }
+        
+        .tool-section { background: #f8f9fa; padding: 10px; border-radius: 10px; margin-bottom: 6px; border: 2px solid #ecf0f1; }
+        .tool-section h4 { margin: 0 0 8px 0; color: #4b6584; font-size: 14px; text-transform: uppercase; text-align: center; }
+        .toolbar-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        
+        .color-btn, .tool-btn {
+            width: 42px; height: 42px; border-radius: 10px; border: 3px solid transparent; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.1); transition: 0.1s;
+        }
+        .color-btn { border-radius: 50%; }
+        .color-btn:active, .tool-btn:active { transform: translateY(3px); box-shadow: none; }
+        .active { border-color: #2b2b2b; transform: scale(1.1); box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+
+        #team-red { background-color: #eb3b5a; } #team-blue { background-color: #2d98da; } #team-green { background-color: #20bf6b; }
+        #tool-full { background-color: #d1d8e0; } #tool-half { background: linear-gradient(to top right, #a5b1c2 50%, #d1d8e0 50%); } 
+        #eraser { background-color: #ffffff; border: 2px solid #d1d8e0; font-size: 18px;}
+
+        #center-panel { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; max-width: 700px; }
+        
+        #mission-box {
+            background-color: #fef9e7; border: 3px solid #f7b731; border-radius: 12px;
+            padding: 8px 15px; margin-bottom: 10px; width: 100%; box-sizing: border-box;
+            font-size: 17px; font-weight: 800; text-align: center; color: #2b2b2b;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: auto; min-height: 65px; flex-shrink: 0; line-height: 1.3;
+        }
+        .unit-display { background: #3867d6; color: white; padding: 4px 12px; border-radius: 6px; font-size: 15px; margin-top: 6px;}
+
+        #grid {
+            display: grid; grid-template-columns: repeat(12, 55px); grid-template-rows: repeat(7, 55px); gap: 2px; 
+            background-color: #a5b1c2; border: 5px solid #4b6584; border-radius: 8px; 
+            touch-action: none; overflow: hidden; flex-shrink: 0;
+        }
+        .cell { background-color: #ffffff; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; }
+        .cell.obstacle { background-color: #ecf0f1; cursor: not-allowed; }
+        
+        .red-full { background-color: #eb3b5a; } .red-bl { background: linear-gradient(to top right, #eb3b5a 50%, white 50%); } .red-br { background: linear-gradient(to top left, #eb3b5a 50%, white 50%); } .red-tl { background: linear-gradient(to bottom right, #eb3b5a 50%, white 50%); } .red-tr { background: linear-gradient(to bottom left, #eb3b5a 50%, white 50%); }
+        .blue-full { background-color: #2d98da; } .blue-bl { background: linear-gradient(to top right, #2d98da 50%, white 50%); } .blue-br { background: linear-gradient(to top left, #2d98da 50%, white 50%); } .blue-tl { background: linear-gradient(to bottom right, #2d98da 50%, white 50%); } .blue-tr { background: linear-gradient(to bottom left, #2d98da 50%, white 50%); }
+        .green-full { background-color: #20bf6b; } .green-bl { background: linear-gradient(to top right, #20bf6b 50%, white 50%); } .green-br { background: linear-gradient(to top left, #20bf6b 50%, white 50%); } .green-tl { background: linear-gradient(to bottom right, #20bf6b 50%, white 50%); } .green-tr { background: linear-gradient(to bottom left, #20bf6b 50%, white 50%); }
+
+        #feedback {
+            font-size: 17px; font-weight: 900; margin-top: 10px; text-align: center;
+            background: white; padding: 10px; border-radius: 10px; box-shadow: 0 3px 0 #ced6e0; width: 100%; box-sizing: border-box; flex-shrink: 0;
+        }
+        .success { color: #20bf6b; border: 2px solid #20bf6b; } 
+        .error { color: #eb3b5a; border: 2px solid #eb3b5a; }
+        .warning { color: #fa8231; border: 2px solid #fa8231; }
+
+        #right-panel { width: 220px; flex-shrink: 0; }
+        
+        .team-score {
+            margin: 6px 0; padding: 10px; border-radius: 10px; background: #f8f9fa;
+            display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 800;
+            border: 2px solid transparent;
+        }
+        .active-team-indicator { border-color: #f7b731; background: #fff8e1; }
+        .points-badge { background: #4b6584; color: white; padding: 3px 8px; border-radius: 6px;}
+
+        .big-input { font-size: 24px; width: 60px; text-align: center; margin: 6px; border: 3px solid #2d98da; border-radius: 10px; font-family: inherit; font-weight: 900;}
+        .vote-btn { width: 100%; margin: 4px 0; padding: 10px; font-size: 16px; }
+        .controls-flex { display: flex; justify-content: center; align-items: center; gap: 8px;}
+        
+        /* Animation Mine */
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        .shake-effect { animation: shake 0.5s; }
+    </style>
+</head>
+<body>
+
+    <h1 id="main-title">🚀 Mission : Explor'Aires</h1>
+
+    <div id="main-menu" class="menu-container">
+        <h2>Prêt pour l'aventure ? Choisis ton rôle !</h2>
+        <div class="cards-wrapper">
+            <div class="menu-card" onclick="showSubMenu(1)">
+                <div class="card-icon">🛠️</div>
+                <h3 style="color:#eb3b5a;">Les Architectes</h3>
+                <p>Construis des figures sur la grille en respectant l'aire demandée.</p>
+            </div>
+            <div class="menu-card" onclick="showSubMenu(2)">
+                <div class="card-icon">🕵️</div>
+                <h3 style="color:#2d98da;">Les Détectives</h3>
+                <p>Ouvre l'œil, compte les cases et trouve les aires cachées !</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="sub-menu-1" class="menu-container hidden">
+        <h2>🛠️ Mode Architectes : Le terrain</h2>
+        <div class="cards-wrapper">
+            <div class="menu-card" onclick="startGame(1, 'libre')">
+                <div class="card-icon">🟩</div>
+                <h3 style="color:#20bf6b;">Terrain Libre</h3>
+                <p>Une grande zone vide pour tracer tes figures en toute liberté.</p>
+            </div>
+            <div class="menu-card" onclick="startGame(1, 'mines')">
+                <div class="card-icon">💥</div>
+                <h3 style="color:#eb3b5a;">Champ de Mines</h3>
+                <p>Attention ! Des bombes invisibles sont cachées. Faufile-toi !</p>
+            </div>
+            <div class="menu-card" onclick="startGame(1, 'labyrinthe')">
+                <div class="card-icon">🧱</div>
+                <h3 style="color:#fa8231;">Le Labyrinthe</h3>
+                <p>Des murs de pierres coupent la grille en petits couloirs étroits.</p>
+            </div>
+        </div>
+        <button class="btn btn-back" style="margin-top:20px;" onclick="showMainMenu()">⬅️ Revenir au menu principal</button>
+    </div>
+
+    <div id="sub-menu-2" class="menu-container hidden">
+        <h2>🕵️ Mode Détectives : Ta mission</h2>
+        <div class="cards-wrapper">
+            <div class="menu-card" onclick="startGame(2, 'calcul')">
+                <div class="card-icon">🧮</div>
+                <h3 style="color:#2d98da;">Défi Calcul</h3>
+                <p>Trouve l'aire exacte de la figure qui apparaît sur la grille.</p>
+            </div>
+            <div class="menu-card" onclick="startGame(2, 'compare')">
+                <div class="card-icon">⚖️</div>
+                <h3 style="color:#eb3b5a;">Défi Comparaison</h3>
+                <p>Entre les deux figures, trouve celle qui occupe le plus d'espace.</p>
+            </div>
+        </div>
+        <button class="btn btn-back" style="margin-top:20px;" onclick="showMainMenu()">⬅️ Revenir au menu principal</button>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        
+        <div id="left-panel" class="panel">
+            <button class="btn btn-back" onclick="showMainMenu()">⬅️ Menu principal</button>
+
+            <div id="mode1-tools" class="hidden">
+                <div class="tool-section">
+                    <h4>1. Mon Équipe</h4>
+                    <div class="toolbar-grid">
+                        <div class="color-btn active" id="team-red" onclick="setTeam('red', this)"></div>
+                        <div class="color-btn" id="team-blue" onclick="setTeam('blue', this)"></div>
+                        <div class="color-btn" id="team-green" onclick="setTeam('green', this)"></div>
+                    </div>
+                </div>
+                <div class="tool-section">
+                    <h4>2. Mes Outils</h4>
+                    <div class="toolbar-grid">
+                        <div class="tool-btn active" id="tool-full" onclick="setTool('full', this)">⬛</div>
+                        <div class="tool-btn" id="tool-half" onclick="setTriangleTool(this)" title="Clique pour tourner !">◣</div>
+                        <div class="tool-btn" id="eraser" onclick="setTool('eraser', this)">🧹</div>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 5px;">
+                    <button class="btn btn-success" style="font-size:16px; padding:10px;" onclick="validateMissionM1()">✅ VALIDER !</button>
+                    <button class="btn btn-danger" onclick="clearTraces()">🧹 Effacer le tracé</button>
+                </div>
+            </div>
+
+            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 6px;">
+                <button id="btn-new-mission" class="btn btn-warning" style="padding:10px; font-size:15px;" onclick="generateNextTask()">🎲 Nouveau Défi !</button>
+                <button id="btn-new-terrain" class="btn hidden" style="background:#20bf6b;" onclick="generateTerrain()">🌲 Changer le terrain</button>
+            </div>
+        </div>
+
+        <div id="center-panel">
+            <div id="mission-box">Sélectionnez un défi !</div>
+            <div id="grid"></div>
+            <div id="feedback">C'est parti !</div>
+        </div>
+
+        <div id="right-panel" class="panel">
+            <div id="sidebar-m1" class="hidden">
+                <h3 style="color:#4b6584; text-align:center; border-bottom:2px solid #ecf0f1; padding-bottom:8px; font-size: 16px;">🏆 SCORES</h3>
+                <div id="score-card-red" class="team-score active-team-indicator">
+                    <span style="color:#eb3b5a;">🔴 Rouge</span> <span class="points-badge" id="score-red">0</span>
+                </div>
+                <div id="score-card-blue" class="team-score">
+                    <span style="color:#2d98da;">🔵 Bleue</span> <span class="points-badge" id="score-blue">0</span>
+                </div>
+                <div id="score-card-green" class="team-score">
+                    <span style="color:#20bf6b;">🟢 Verte</span> <span class="points-badge" id="score-green">0</span>
+                </div>
+            </div>
+
+            <div id="sidebar-m2" class="hidden">
+                <div id="m2-calcul-ui" class="hidden">
+                    <h3 style="text-align:center; color:#2d98da; font-size: 16px;">Quelle est l'aire ?</h3>
+                    <p style="text-align:center; font-weight:bold; color:#778ca3; font-size: 13px; margin: 5px 0;">(En carrés pleins)</p>
+                    <div class="controls-flex">
+                        <button class="btn btn-danger" onclick="changeM2Answer(-0.5)">-</button>
+                        <input type="text" id="m2-answer" class="big-input" value="0" readonly>
+                        <button class="btn btn-success" onclick="changeM2Answer(0.5)">+</button>
+                    </div>
+                    <button class="btn btn-warning vote-btn" style="margin-top:10px;" onclick="validateCalculM2()">✅ VÉRIFIER</button>
+                </div>
+
+                <div id="m2-compare-ui" class="hidden">
+                    <h3 style="text-align:center; color:#eb3b5a; margin-bottom:8px; font-size: 16px;">Laquelle est la plus grande ?</h3>
+                    <button class="btn vote-btn" style="background:#eb3b5a;" onclick="validateCompareM2('red')">🔴 La Rouge</button>
+                    <button class="btn vote-btn" style="background:#2d98da;" onclick="validateCompareM2('blue')">🔵 La Bleue</button>
+                    <button class="btn vote-btn" style="background:#a5b1c2; color:#2b2b2b;" onclick="validateCompareM2('equal')">⚖️ Égalité !</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentMode = 1;
+        let currentSubMode = '';
+        const grid = document.getElementById('grid');
+        let isDrawing = false;
+        
+        let currentTeam = 'red'; let currentTool = 'full';
+        let targetAreaM1 = 0; let unitMultiplierM1 = 1; 
+        let teamAreas = { red: 0, blue: 0, green: 0 };
+        let teamScoresM1 = { red: 0, blue: 0, green: 0 }; 
+
+        let triIndex = 0;
+        const triShapes = ['bl', 'tl', 'tr', 'br'];
+        const triIcons = ['◣', '◤', '◥', '◢'];
+
+        let currentM2AreaA = 0; let currentM2AreaB = 0;
+        let m2Answer = 0;
+
+        // GRILLE 12x7 = 84 cases max
+        for (let i = 0; i < 84; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.id = `cell-${i}`;
+            cell.dataset.team = 'none'; cell.dataset.shape = 'none'; 
+            cell.dataset.obstacle = 'false'; cell.dataset.mine = 'false';
+            
+            const paint = (e) => {
+                if(e.type === 'touchstart') e.preventDefault();
+                if(currentMode === 1 && cell.dataset.obstacle === 'false') applyTool(cell);
+            };
+
+            cell.addEventListener('mousedown', (e) => { isDrawing = true; paint(e); });
+            cell.addEventListener('mouseenter', (e) => { if(isDrawing) paint(e); });
+            cell.addEventListener('touchstart', (e) => { isDrawing = true; paint(e); });
+            cell.addEventListener('touchmove', (e) => {
+                if(isDrawing) {
+                    e.preventDefault();
+                    let touch = e.touches[0];
+                    let element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if(element && element.classList.contains('cell')) applyTool(element);
+                }
+            });
+            grid.appendChild(cell);
+        }
+        document.addEventListener('mouseup', () => isDrawing = false);
+        document.addEventListener('touchend', () => isDrawing = false);
+
+        function showMainMenu() {
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.getElementById('sub-menu-1').classList.add('hidden');
+            document.getElementById('sub-menu-2').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+        }
+
+        function showSubMenu(mode) {
+            document.getElementById('main-menu').classList.add('hidden');
+            if(mode === 1) document.getElementById('sub-menu-1').classList.remove('hidden');
+            if(mode === 2) document.getElementById('sub-menu-2').classList.remove('hidden');
+        }
+
+        function startGame(mode, subMode) {
+            currentMode = mode;
+            currentSubMode = subMode;
+            
+            document.getElementById('sub-menu-1').classList.add('hidden');
+            document.getElementById('sub-menu-2').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            clearAll();
+            
+            if (mode === 1) {
+                document.getElementById('mode1-tools').classList.remove('hidden');
+                document.getElementById('sidebar-m1').classList.remove('hidden');
+                document.getElementById('sidebar-m2').classList.add('hidden');
+                
+                if(subMode === 'mines' || subMode === 'labyrinthe') {
+                    document.getElementById('btn-new-terrain').classList.remove('hidden');
+                    generateTerrain();
+                } else {
+                    document.getElementById('btn-new-terrain').classList.add('hidden');
+                }
+                generateMissionM1();
+            } else {
+                document.getElementById('mode1-tools').classList.add('hidden');
+                document.getElementById('btn-new-terrain').classList.add('hidden');
+                document.getElementById('sidebar-m1').classList.add('hidden');
+                document.getElementById('sidebar-m2').classList.remove('hidden');
+                
+                if(subMode === 'calcul') {
+                    document.getElementById('m2-calcul-ui').classList.remove('hidden');
+                    document.getElementById('m2-compare-ui').classList.add('hidden');
+                    generateCalculM2();
+                } else {
+                    document.getElementById('m2-calcul-ui').classList.add('hidden');
+                    document.getElementById('m2-compare-ui').classList.remove('hidden');
+                    generateComparaisonM2();
+                }
+            }
+        }
+
+        function generateNextTask() {
+            if(currentMode === 1) generateMissionM1();
+            else if(currentMode === 2 && currentSubMode === 'calcul') generateCalculM2();
+            else if(currentMode === 2 && currentSubMode === 'compare') generateComparaisonM2();
+        }
+
+        function clearAll() {
+            for(let i=0; i<84; i++) {
+                let cell = document.getElementById(`cell-${i}`);
+                cell.className = 'cell'; cell.dataset.team = 'none'; cell.dataset.shape = 'none'; 
+                cell.dataset.obstacle = 'false'; cell.dataset.mine = 'false';
+                cell.innerText = ''; cell.style.backgroundColor = '';
+            }
+            if(currentMode===1) calculateAreasM1();
+            document.getElementById('feedback').innerText = "C'est parti !";
+            document.getElementById('feedback').className = "";
+        }
+
+        function applyTool(element) {
+            // NOUVEAU: Détection des mines invisibles
+            if (currentMode === 1 && element.dataset.mine === 'true' && currentTool !== 'eraser') {
+                element.dataset.mine = 'false'; // Évite que la mine explose 2 fois
+                element.dataset.obstacle = 'true';
+                element.className = 'cell obstacle';
+                element.innerText = '💥';
+                element.style.backgroundColor = '#2f3542';
+                
+                document.getElementById('grid').classList.add('shake-effect');
+                setTimeout(() => document.getElementById('grid').classList.remove('shake-effect'), 500);
+                
+                document.getElementById('feedback').innerHTML = `💥 BOUM ! Une mine cachée ! Déforme ton dessin.`;
+                document.getElementById('feedback').className = "warning";
+                calculateAreasM1();
+                return;
+            }
+
+            if (element.dataset.obstacle === 'true') return;
+
+            element.className = 'cell';
+            if (currentTool === 'eraser') {
+                element.dataset.team = 'none'; element.dataset.shape = 'none';
+            } else {
+                element.dataset.team = currentTeam; element.dataset.shape = currentTool;
+                element.classList.add(`${currentTeam}-${currentTool}`);
+            }
+            calculateAreasM1(); 
+        }
+
+        function setTeam(color, btn) {
+            currentTeam = color;
+            if(currentTool === 'eraser') setTool('full', document.getElementById('tool-full'));
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.team-score').forEach(el => el.classList.remove('active-team-indicator'));
+            document.getElementById(`score-card-${color}`).classList.add('active-team-indicator');
+        }
+
+        function setTool(tool, btn) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function setTriangleTool(btn) {
+            if(currentTool === triShapes[triIndex]) triIndex = (triIndex + 1) % 4;
+            btn.innerText = triIcons[triIndex];
+            setTool(triShapes[triIndex], btn);
+            let colors = {'red': '#eb3b5a', 'blue': '#2d98da', 'green': '#20bf6b'};
+            btn.style.background = colors[currentTeam];
+            setTimeout(() => btn.style.background = '', 200);
+        }
+
+        function calculateAreasM1() {
+            teamAreas = { red: 0, blue: 0, green: 0 };
+            for(let i=0; i<84; i++) {
+                let cell = document.getElementById(`cell-${i}`);
+                let team = cell.dataset.team;
+                if (team !== 'none') {
+                    let shape = cell.dataset.shape;
+                    let baseVal = shape === 'full' ? 1 : 0.5;
+                    teamAreas[team] += (baseVal / unitMultiplierM1);
+                }
+            }
+        }
+
+        function generateMissionM1() {
+            const areas = [5, 6, 8, 10, 12]; 
+            const subjects = ["une base", "un enclos", "un musée", "un vaisseau"];
+            const unitTypes = [
+                { mult: 1, text: "L'Unité = 1 carré ⬛" },
+                { mult: 2, text: "L'Unité = 2 carrés ⬛⬛" },
+                { mult: 0.5, text: "L'Unité = 1 triangle ◣" }
+            ];
+            
+            let rUnit = unitTypes[Math.floor(Math.random() * unitTypes.length)];
+            unitMultiplierM1 = rUnit.mult;
+            targetAreaM1 = areas[Math.floor(Math.random() * areas.length)];
+            
+            let teamName = currentTeam === 'red' ? 'Rouge' : currentTeam === 'blue' ? 'Bleue' : 'Verte';
+            document.getElementById('mission-box').innerHTML = 
+                `Équipe ${teamName} : Tracez ${subjects[Math.floor(Math.random() * subjects.length)]} de <strong>${targetAreaM1} unités</strong>.<br>
+                <div class="unit-display">${rUnit.text}</div>`;
+            document.getElementById('feedback').innerText = "À vous de jouer !";
+            document.getElementById('feedback').className = "";
+            calculateAreasM1(); 
+        }
+
+        function generateTerrain() {
+            clearAll(); // Réinitialise tout (efface aussi les anciennes mines)
+            
+            if (currentSubMode === 'mines') {
+                // Place 15 mines invisibles (dataset.mine = 'true', mais ne change pas l'apparence)
+                for(let i=0; i<15; i++) { 
+                    let cell = document.getElementById(`cell-${Math.floor(Math.random() * 84)}`);
+                    cell.dataset.mine = 'true';
+                }
+            } 
+            else if (currentSubMode === 'labyrinthe') {
+                // Place 4 "murs" de 2 à 4 cases de long
+                for(let w=0; w<4; w++) {
+                    let isHoriz = Math.random() > 0.5;
+                    let startCol = Math.floor(Math.random() * (isHoriz ? 8 : 12));
+                    let startRow = Math.floor(Math.random() * (isHoriz ? 7 : 4));
+                    let len = Math.floor(Math.random() * 3) + 2;
+                    
+                    for(let l=0; l<len; l++) {
+                        let c = startCol + (isHoriz ? l : 0);
+                        let r = startRow + (!isHoriz ? l : 0);
+                        let cell = document.getElementById(`cell-${r * 12 + c}`);
+                        if(cell) {
+                            cell.dataset.obstacle = 'true';
+                            cell.classList.add('obstacle');
+                            cell.innerText = '🧱';
+                        }
+                    }
+                }
+            }
+            generateMissionM1();
+        }
+
+        function validateMissionM1() {
+            if (targetAreaM1 === 0) return;
+            let area = teamAreas[currentTeam];
+            
+            if (area === targetAreaM1) {
+                document.getElementById('feedback').innerHTML = `🎉 PARFAIT ! L'aire est exactement de ${targetAreaM1} unités. (+1 pt)`;
+                document.getElementById('feedback').className = "success";
+                teamScoresM1[currentTeam]++;
+                document.getElementById(`score-${currentTeam}`).innerText = teamScoresM1[currentTeam];
+            } else {
+                let diff = Math.abs(area - targetAreaM1);
+                let msg = area < targetAreaM1 ? "Il manque" : "Il y a en trop";
+                document.getElementById('feedback').innerHTML = `❌ Oups ! Ton dessin fait ${area} unités. ${msg} ${diff} unités.`;
+                document.getElementById('feedback').className = "error";
+            }
+        }
+
+        function clearTraces() {
+            // Efface les couleurs des équipes, MAIS garde les obstacles et les mines éclatées !
+            for(let i=0; i<84; i++) {
+                let cell = document.getElementById(`cell-${i}`);
+                if (cell.dataset.obstacle === 'false') {
+                    cell.className = 'cell'; cell.dataset.team = 'none'; cell.dataset.shape = 'none';
+                }
+            }
+            calculateAreasM1();
+            document.getElementById('feedback').innerText = "La grille a été nettoyée pour la prochaine équipe !";
+            document.getElementById('feedback').className = "";
+        }
+
+        function drawSolidShapeM2(baseCol, baseRow, team) {
+            let area = 0; let gridMap = {}; 
+            let w1 = Math.floor(Math.random() * 3) + 2; let h1 = Math.floor(Math.random() * 2) + 2; 
+            for(let c=0; c<w1; c++){ for(let r=0; r<h1; r++){ gridMap[`${baseCol+c},${baseRow+r}`] = 'full'; } }
+            
+            if(Math.random() > 0.3) {
+                let w2 = Math.floor(Math.random() * 2) + 2; let h2 = Math.floor(Math.random() * 3) + 2;
+                let offsetC = Math.floor(Math.random() * w1); let offsetR = Math.floor(Math.random() * h1) - Math.floor(h2/2);
+                for(let c=0; c<w2; c++){
+                    for(let r=0; r<h2; r++){
+                        let cx = baseCol + offsetC + c; let cy = baseRow + offsetR + r;
+                        if(cx>=0 && cx<12 && cy>=0 && cy<7) gridMap[`${cx},${cy}`] = 'full'; 
+                    }
+                }
+            }
+            
+            let finalCells = Object.keys(gridMap);
+            for(let key of finalCells) {
+                let [col, row] = key.split(',').map(Number);
+                let eT = !gridMap[`${col},${row-1}`]; let eB = !gridMap[`${col},${row+1}`];
+                let eL = !gridMap[`${col-1},${row}`]; let eR = !gridMap[`${col+1},${row}`];
+                
+                if(eT && eL && Math.random() > 0.4) gridMap[key] = 'br';
+                else if(eT && eR && Math.random() > 0.4) gridMap[key] = 'bl';
+                else if(eB && eL && Math.random() > 0.4) gridMap[key] = 'tr';
+                else if(eB && eR && Math.random() > 0.4) gridMap[key] = 'tl';
+            }
+
+            for(let key in gridMap) {
+                let [col, row] = key.split(',').map(Number);
+                let shape = gridMap[key]; let index = row * 12 + col; 
+                if(index >= 0 && index < 84) { 
+                    let cell = document.getElementById(`cell-${index}`);
+                    cell.dataset.team = team; cell.dataset.shape = shape; cell.className = `cell ${team}-${shape}`;
+                    area += shape === 'full' ? 1 : 0.5;
+                }
+            }
+            return area;
+        }
+
+        function generateCalculM2() {
+            clearAll();
+            m2Answer = 0; document.getElementById('m2-answer').value = m2Answer;
+            currentM2AreaA = drawSolidShapeM2(4, 2, 'green');
+            document.getElementById('mission-box').innerHTML = `🔎 Observe bien la figure verte. Quelle est son aire totale ?`;
+        }
+
+        function changeM2Answer(val) {
+            m2Answer += val; if(m2Answer < 0) m2Answer = 0;
+            document.getElementById('m2-answer').value = m2Answer;
+        }
+
+        function validateCalculM2() {
+            if(m2Answer === currentM2AreaA) {
+                document.getElementById('feedback').innerHTML = `🎉 EXCELLENT ! L'aire est bien de ${currentM2AreaA} carrés.`;
+                document.getElementById('feedback').className = "success";
+            } else {
+                document.getElementById('feedback').innerHTML = `❌ PRESQUE ! L'aire exacte est de ${currentM2AreaA} carrés.`;
+                document.getElementById('feedback').className = "error";
+            }
+        }
+
+        function generateComparaisonM2() {
+            clearAll();
+            currentM2AreaA = drawSolidShapeM2(1, 1, 'red');  
+            currentM2AreaB = drawSolidShapeM2(7, 1, 'blue'); 
+            document.getElementById('mission-box').innerHTML = `⚖️ Défi d'observation : Laquelle occupe la plus grande surface ?`;
+        }
+
+        function validateCompareM2(vote) {
+            let correct = 'equal';
+            if(currentM2AreaA > currentM2AreaB) correct = 'red';
+            if(currentM2AreaB > currentM2AreaA) correct = 'blue';
+
+            let msg = `Rouge = ${currentM2AreaA} | Bleue = ${currentM2AreaB}. `;
+            if(vote === correct) {
+                document.getElementById('feedback').innerHTML = `🎉 GAGNÉ ! ${msg}`;
+                document.getElementById('feedback').className = "success";
+            } else {
+                document.getElementById('feedback').innerHTML = `❌ PERDU ! ${msg}`;
+                document.getElementById('feedback').className = "error";
+            }
+        }
+
+    </script>
+</body>
+</html>
